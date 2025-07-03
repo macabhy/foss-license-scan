@@ -1,0 +1,32 @@
+name: FOSS License Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  license-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install ScanCode Toolkit
+        run: |
+          git clone https://github.com/nexB/scancode-toolkit.git
+          cd scancode-toolkit
+          ./scancode --version
+
+      - name: Run ScanCode
+        run: |
+          cd scancode-toolkit
+          ./scancode --license --summary --json-pp ../scan-output.json ../..
+
+      - name: Upload Scan Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: foss-scan-results
+          path: scan-output.json
